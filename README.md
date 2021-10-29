@@ -6,3 +6,11 @@ An interpreter for the Lox language, written in Java by following along with Bob
 While the book itself provides source code for the interpreter, this implementation adds the following suggested features/"challenges" from the book: 
 
 - [ ] Multiline C-style comments: `/* */`.
+- [ ] Error messages show location of error:
+
+```java
+Error: Unexpected "," in argument list.
+
+    15 | function(first, second,);
+                               ^-- Here.
+```
