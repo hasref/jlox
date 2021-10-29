@@ -26,7 +26,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'com.craftinginterpreters.lox.App'
+    mainClass = 'com.craftinginterpreters.lox.Lox'
 }
 
 tasks.named('test') {
