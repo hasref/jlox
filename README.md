@@ -1,9 +1,10 @@
 # jlox
-An interpreter for the Lox language, written in Java by following along with Bob Nystrom's ["Crafting Interpreters"](http://craftinginterpreters.com/). 
+
+An interpreter for the Lox language, written in Java by following along with Bob Nystrom's ["Crafting Interpreters"](http://craftinginterpreters.com/).
 
 ## Implemented Challenges
 
-While the book itself provides source code for the interpreter, this implementation adds the following suggested features/"challenges" from the book: 
+While the book itself provides source code for the interpreter, this implementation adds the following suggested features/"challenges" from the book:
 
 - [ ] Multiline C-style comments: `/* */`.
 - [ ] Error messages show location of error:
@@ -14,3 +15,5 @@ Error: Unexpected "," in argument list.
     15 | function(first, second,);
                                ^-- Here.
 ```
+
+- [ ] Blobs of invalid characters produce a single error message.
