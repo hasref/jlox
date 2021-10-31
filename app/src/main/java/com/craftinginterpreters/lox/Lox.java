@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Lox {
+  static boolean hadError = false; // who sets this flag? Probably the scanner
+
   public static void main(String[] args) throws IOException {
     if (args.length > 1) {
       System.out.println("Usgae: jlox [script]");
@@ -25,6 +27,10 @@ public class Lox {
     // readAllBytes is not suitable for large files acc. to docs
     byte[] bytes = Files.readAllBytes(Paths.get(path));
     run(new String(bytes, Charset.defaultCharset()));
+
+    if (hadError) {
+      System.exit(65);
+    }
   }
 
   private static void runPrompt() throws IOException {
@@ -38,6 +44,8 @@ public class Lox {
         break;
       }
       run(line);
+      // reset flag since an error should not end the user's session }
+      hadError = false;
     }
   }
 
@@ -45,8 +53,19 @@ public class Lox {
     Scanner scanner = new Scanner(source);
     List<Token> tokens = scanner.scanTokens();
 
+    // for now, just echo out the tokens
     for (Token token : tokens) {
       System.out.println(token);
     }
+  }
+
+  // error reporting
+  static void error(int line, String message) {
+    report(line, "", message);
+  }
+
+  private static void report(int line, String where, String message) {
+    System.err.println("[line " + line + "] Error" + where + ": " + message);
+    hadError = true; // it makes more sense to set this in the error function
   }
 }
