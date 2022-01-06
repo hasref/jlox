@@ -4,7 +4,7 @@ An interpreter for the Lox language, written in Java by following along with Bob
 
 ## Building
 
-Build using gradle `gradle build` and launch using `gradle app:run -q --console=plain`
+From the root folder, build using gradle `./gradlew build` and launch using `./gradlew app:run -q --console=plain`.
 
 ## Implemented Challenges
 
