@@ -10,7 +10,7 @@ From the root folder, build using gradle `./gradlew build` and launch using `./g
 
 While the book itself provides source code for the interpreter, this implementation adds the following suggested features/"challenges" from the book:
 
-- [ ] Multiline C-style comments: `/* */`.
+- [x] Multiline C-style comments: `/* */`.
 - [ ] Error messages show location of error:
 
 ```java

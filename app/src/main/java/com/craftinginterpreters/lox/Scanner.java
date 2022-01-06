@@ -112,6 +112,8 @@ class Scanner {
           while (peek() != '\n' && !isAtEnd()) { // is comment, consume entire line
             advance();
           }
+        } else if (match('*')) {
+          multilineComment();
         } else {
           addToken(TokenType.SLASH);
         }
@@ -201,7 +203,7 @@ class Scanner {
 
     // could have broken out of loop for two reasons, 1. end of input
     if (isAtEnd()) {
-      Lox.error(line, "Unterminated string");
+      Lox.error(line, "Unterminated string. Did you perhaps miss the closing '\"' ?");
       return;
     }
 
@@ -212,6 +214,42 @@ class Scanner {
     addToken(TokenType.STRING, value);
   }
 
+  private void multilineComment() {
+    int commentTokenPairs = 1;
+    while (!isAtEnd()) {
+      if (peek() == '/' && peekNext() == '*') {
+        commentTokenPairs++;
+      } else if (peek() == '*' && peekNext() == '/') {
+        commentTokenPairs--;
+
+        if (commentTokenPairs == 0) {
+          break;
+        }
+
+      }
+
+      if (peek() == '\n') {
+        line++;
+      }
+      advance();
+    }
+
+    if (isAtEnd()) {
+      Lox.error(line, "Unterminated multi-line comment. Did you perhaps miss the closing '*/' ?");
+      return;
+    }
+
+    // else we found the terminating part of the comment and need to advance beyond
+    // it
+    advance();
+    advance();
+    return;
+  }
+
+  /**
+   * Matches the next unconsumed character with 'expected' and if it matches,
+   * consumes it by advancing 'current'.
+   */
   private boolean match(char expected) {
     if (isAtEnd()) {
       return false;
