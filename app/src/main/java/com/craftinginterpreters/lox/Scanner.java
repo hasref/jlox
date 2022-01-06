@@ -1,11 +1,34 @@
 package com.craftinginterpreters.lox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class Scanner {
   private final String source;
   private final List<Token> tokens = new ArrayList<>();
+  private static final Map<String, TokenType> keywords;
+
+  static {
+    keywords = new HashMap<>();
+    keywords.put("and", TokenType.AND);
+    keywords.put("class", TokenType.CLASS);
+    keywords.put("else", TokenType.ELSE);
+    keywords.put("false", TokenType.FALSE);
+    keywords.put("for", TokenType.FOR);
+    keywords.put("fun", TokenType.FUN);
+    keywords.put("if", TokenType.IF);
+    keywords.put("nil", TokenType.NIL);
+    keywords.put("or", TokenType.OR);
+    keywords.put("print", TokenType.PRINT);
+    keywords.put("return", TokenType.RETURN);
+    keywords.put("super", TokenType.SUPER);
+    keywords.put("this", TokenType.THIS);
+    keywords.put("true", TokenType.TRUE);
+    keywords.put("var", TokenType.VAR);
+    keywords.put("while", TokenType.WHILE);
+  }
 
   private int start = 0; // points to start of current lexeme
   private int current = 0; // current character under consideration
@@ -107,13 +130,63 @@ class Scanner {
         break;
       // everything else is an error
       default:
-        Lox.error(line, "Unexpected character.");
-        break;
+        // this is here since we do not want to check for each decimal digit in separate
+        // cases
+        if (isDigit(c)) {
+          number();
+        } else if (isAlpha(c)) {
+          // in the beginning assume that any keyword is an identifier. This is because
+          // otherwise, we could scan 'orchid' as the reserved keyword 'or' followed by
+          // 'chid' which would not make sense. This follows the maximum munch princple.
+          identifier();
+        } else {
+          Lox.error(line, "Unexpected character.");
+          break;
+        }
     }
   }
 
   /**
-   * Consume and add a string token to the TokenList. Shows errors for
+   * Extracts an identifier from the source and adds a token.
+   */
+  private void identifier() {
+    while (isAlphaNumeric(peek())) {
+      advance();
+    }
+
+    String text = source.substring(start, current);
+    // if in map, the current lexeme is a keyword
+    TokenType type = keywords.get(text);
+    if (type == null) {
+      type = TokenType.IDENTIFIER;
+    }
+
+    // addToken will automatically add the lexeme to the token
+    addToken(type);
+  }
+
+  /**
+   * Consumes a number from the source and adds a token to the list.
+   * Lox only supports floating point numbers.
+   */
+  private void number() {
+    while (isDigit(peek())) {
+      // no need to check for end of source since peek does that already
+      advance();
+    }
+
+    if (peek() == '.' && isDigit(peekNext())) {
+      advance();
+
+      while (isDigit(peek())) {
+        advance();
+      }
+    }
+    addToken(TokenType.NUMBER, Double.parseDouble(source.substring(start, current)));
+  }
+
+  /**
+   * Consume and add a string token to the list. Shows errors for
    * unterminated strings. Currently does not support nested strings.
    * 
    * @implNote Lox supports multi-line strings but no escape characters.
@@ -153,13 +226,43 @@ class Scanner {
   }
 
   /**
-   * @return the next unconsumed character without consuming it.
+   * @return the next unconsumed character (indexed by 'current') without
+   *         consuming it. Signals end of source by returning the null terminator.
    */
   private char peek() {
     if (isAtEnd()) {
       return '\0';
     }
     return source.charAt(current);
+  }
+
+  /**
+   * @return the character after the next unconsumed character without consuming.
+   *         Signals end of source by returning the null terminator.
+   */
+  private char peekNext() {
+    if (current + 1 >= source.length()) {
+      return '\0';
+    }
+    return source.charAt(current + 1);
+  }
+
+  /**
+   * @ return true if c is in [a-zA-z_]
+   * Lox does not currently support identifiers in utf8 encoding (?)
+   */
+  private boolean isAlpha(char c) {
+    return (c >= 'a' && c <= 'z') ||
+        (c >= 'A' && c <= 'Z') ||
+        c == '_';
+  }
+
+  private boolean isAlphaNumeric(char c) {
+    return isAlpha(c) || isDigit(c);
+  }
+
+  private boolean isDigit(char c) {
+    return c >= '0' && c <= '9';
   }
 
   private boolean isAtEnd() {
@@ -178,7 +281,7 @@ class Scanner {
   }
 
   /**
-   * Add a token to the TokenList with literal value implicitly 'null'
+   * Add a token to the list with literal value implicitly 'null'
    */
   private void addToken(TokenType type) {
     addToken(type, null);
