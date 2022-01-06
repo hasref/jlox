@@ -58,13 +58,16 @@ public class Lox {
     }
   }
 
-  // error reporting
+  /**
+   * Report an error to the user by printing to System.err and sets
+   * hadError.
+   */
   static void error(int line, String message) {
     report(line, "", message);
+    hadError = true;
   }
 
   private static void report(int line, String where, String message) {
     System.err.println("[line " + line + "] Error" + where + ": " + message);
-    hadError = true; // it makes more sense to set this in the error function
   }
 }

@@ -101,11 +101,42 @@ class Scanner {
       case '\n':
         line++;
         break;
+
+      case '"':
+        string();
+        break;
       // everything else is an error
       default:
         Lox.error(line, "Unexpected character.");
         break;
     }
+  }
+
+  /**
+   * Consume and add a string token to the TokenList. Shows errors for
+   * unterminated strings. Currently does not support nested strings.
+   * 
+   * @implNote Lox supports multi-line strings but no escape characters.
+   */
+  private void string() {
+    while (peek() != '"' && !isAtEnd()) {
+      if (peek() == '\n') {
+        line++;
+      }
+      advance();
+    }
+
+    // could have broken out of loop for two reasons, 1. end of input
+    if (isAtEnd()) {
+      Lox.error(line, "Unterminated string");
+      return;
+    }
+
+    // 2. reached end of string, consume ending quote '"'
+    advance();
+
+    String value = source.substring(start + 1, current - 1);
+    addToken(TokenType.STRING, value);
   }
 
   private boolean match(char expected) {
@@ -121,6 +152,9 @@ class Scanner {
     return true;
   }
 
+  /**
+   * @return the next unconsumed character without consuming it.
+   */
   private char peek() {
     if (isAtEnd()) {
       return '\0';
@@ -132,9 +166,10 @@ class Scanner {
     return current >= source.length();
   }
 
-  /*
-   * returns the current character under consideration, pointed to by the 'current' member, and
-   * advances the 'current' offset.
+  /**
+   * @return the next unconsumed character i.e. the 'current' character under
+   *         consideration, and consumes it (advances 'current')
+   * 
    */
   private char advance() {
     char underConsideration = source.charAt(current);
@@ -142,16 +177,18 @@ class Scanner {
     return underConsideration;
   }
 
+  /**
+   * Add a token to the TokenList with literal value implicitly 'null'
+   */
   private void addToken(TokenType type) {
     addToken(type, null);
   }
 
-  /*
-   * adds a token of type 'type' and literal value 'literal' to the list of tokens maintained by the
-   * Scanner. The created token object also contains the token's text content and the source line
-   * number the token appears on.
-   *
+  /**
+   * Add a token with literal value to the TokenList.
+   * 
    */
+
   private void addToken(TokenType type, Object literal) {
     String tokenText = source.substring(start, current);
     tokens.add(new Token(type, tokenText, literal, line));
