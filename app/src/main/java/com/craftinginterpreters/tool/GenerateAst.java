@@ -48,6 +48,8 @@ public class GenerateAst {
         writer.println();
         writer.println("abstract class " + baseName + " {");
 
+        defineVisitor(writer, baseName, types);
+
         /**
          * Generate the AST classes as part of the base class. The type strings are of
          * the form:
@@ -62,8 +64,30 @@ public class GenerateAst {
             defineType(writer, baseName, className, fields);
         }
 
+        writer.println();
+        // base class accept method
+        writer.println("  abstract <R> R accept(Visitor<R> visitor);");
+
         writer.println("}");
         writer.close();
+    }
+
+    /**
+     * Generates base visitor interface.
+     */
+    private static void defineVisitor(PrintWriter writer, String baseName, List<String> types) {
+        writer.println("  interface Visitor<R> {");
+
+        // generate a visit method for each subclass
+        // e.g.
+        // R visitBinaryExpr(Binary expr);
+        // R visitGroupingExpr(Grouping expr); and so on
+        for (String type : types) {
+            String typeName = type.split(":")[0].trim();
+            writer.println("    R visit" + typeName + baseName + "(" + typeName + " " + baseName.toLowerCase() + ");");
+        }
+
+        writer.println("  }");
     }
 
     /**
@@ -87,10 +111,17 @@ public class GenerateAst {
 
         writer.println("  }");
 
+        // accept method for type
+        writer.println();
+        writer.println("    @Override");
+        writer.println("    <R> R accept(Visitor<R> visitor) {");
+        writer.println("      return visitor.visit" + className + baseName + "(this);");
+        writer.println("    }");
+
         // Fields
         writer.println();
         for (String field : fields) {
-            writer.print("    final " + field + ";");
+            writer.println("    final " + field + ";");
         }
         writer.println();
         writer.println("  }");
