@@ -9,11 +9,23 @@ import static com.craftinginterpreters.lox.TokenType.*;
  * expression grammar into functions, going from lower to higher precedence.
  */
 class Parser {
+    // a sentinel class for parse errors
+    private static class ParseError extends RuntimeException {
+    }
+
     private final List<Token> tokens;
     private int current = 0;
 
     Parser(List<Token> tokens) {
         this.tokens = tokens;
+    }
+
+    Expr parse() {
+        try {
+            return expression();
+        } catch (ParseError error) {
+            return null;
+        }
     }
 
     // epxression --> equality
@@ -106,6 +118,8 @@ class Parser {
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
+
+        throw error(peek(), "Expected expression.");
     }
 
     /**
@@ -123,6 +137,23 @@ class Parser {
         return false;
     }
 
+    /**
+     * Checks that the type of the next token is 'type' and consumes it. This is
+     * different from check. If the type is not 'type', then this function throws an
+     * error with 'message'.
+     */
+    private Token consume(TokenType type, String message) {
+        if (check(type)) {
+            return advance();
+        }
+
+        throw error(peek(), message); // we are using Java's exception to synchronize the parser in case of errors
+                                      // (we'll catch the exception at the point where we want to synchronize)
+    }
+
+    /**
+     * Checks that the type of the next token is 'type' without consuming it.
+     */
     private boolean check(TokenType type) {
         if (isAtEnd()) {
             return false;
@@ -142,12 +173,54 @@ class Parser {
         return peek().type == EOF;
     }
 
+    /**
+     * @return current token
+     */
     private Token peek() {
         return tokens.get(current);
     }
 
+    /**
+     * @return the last consumed token. (Consumption is decided by the value of
+     *         'current' member variable)
+     */
     private Token previous() {
         return tokens.get(current - 1);
+    }
+
+    private ParseError error(Token token, String message) {
+        Lox.error(token, message);
+        return new ParseError();
+    }
+
+    /**
+     * Synchronize after encountering an error by discarding tokens until we find
+     * a token that could be the beginning of the next statement. We do this so that
+     * the parser does not stop after encountering the first error but tries to
+     * report as many errors as possible.
+     * 
+     * TODO: This is not used yet since we do not have statements yet.
+     */
+    private void synchronize() {
+        advance();
+
+        while (!isAtEnd()) {
+            if (previous().type == SEMICOLON) {
+                return;
+            }
+            switch (peek().type) {
+                case CLASS:
+                case FUN:
+                case VAR:
+                case FOR:
+                case IF:
+                case WHILE:
+                case PRINT:
+                case RETURN:
+                    return;
+            }
+            advance();
+        }
     }
 
 }
