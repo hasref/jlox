@@ -22,13 +22,25 @@ class Parser {
 
     Expr parse() {
         try {
-            return expression();
+            return commaExpr();
         } catch (ParseError error) {
             return null;
         }
     }
 
-    // epxression --> equality
+    // lowest precedence, left associative
+    // comma-expr --> expression ( "," expression )*
+    private Expr commaExpr() {
+        Expr expr = expression();
+        while (match(COMMA)) {
+            Token operator = previous();
+            Expr right = expression();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+        return expr;
+    }
+
+    // expression --> equality
     private Expr expression() {
         return equality();
     }
