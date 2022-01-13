@@ -25,6 +25,7 @@ public class GenerateAst {
 
         // generate AST classes
         defineAst(outputDir, "Expr", Arrays.asList(
+                "Ternary   : Expr cond, Expr ifTrue, Expr orElse",
                 "Binary    : Expr left, Token operator, Expr right",
                 "Grouping  : Expr expression",
                 "Literal   : Object value",

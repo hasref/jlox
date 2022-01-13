@@ -6,6 +6,11 @@ public class ReversePolishNotationPrinter implements Expr.Visitor<String> {
     }
 
     @Override
+    public String visitTernaryExpr(Expr.Ternary expr) {
+        return new String("Implement me!");
+    }
+
+    @Override
     public String visitBinaryExpr(Expr.Binary expr) {
         return this.print(expr.left) + " " + this.print(expr.right) + " " + expr.operator.lexeme;
     }

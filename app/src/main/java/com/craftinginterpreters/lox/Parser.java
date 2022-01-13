@@ -31,11 +31,25 @@ class Parser {
     // lowest precedence, left associative
     // comma-expr --> expression ( "," expression )*
     private Expr commaExpr() {
-        Expr expr = expression();
+        Expr expr = ternary();
         while (match(COMMA)) {
             Token operator = previous();
-            Expr right = expression();
+            Expr right = ternary();
             expr = new Expr.Binary(expr, operator, right);
+        }
+        return expr;
+    }
+
+    // ternary is higher precedence than comma
+    // ternary --> expr '?' expr ':' ( ( expr '?' expr ':')* | expr )
+    private Expr ternary() {
+        Expr expr = expression();
+        if (match(QUESTION)) {
+            Expr ifTrue = expression();
+            if (!match(COLON)) {
+                throw error(previous(), "Expected colon ':'.");
+            }
+            expr = new Expr.Ternary(expr, ifTrue, ternary()); // this code looks so weird
         }
         return expr;
     }

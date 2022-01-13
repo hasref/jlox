@@ -13,6 +13,7 @@ While the book itself provides source code for the interpreter, this implementat
 - [x] Multiline C-style comments: `/* */`.
 - [x] Reverse Polish Notation Printer: (1 + 2) \* (4 - 3) --> 1 2 + 4 3 - \*
 - [x] C-style comma operator
+- [x] Ternary conditional (could be buggy)
 - [ ] Error messages show location of error:
 
 ```java
