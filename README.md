@@ -14,6 +14,7 @@ While the book itself provides source code for the interpreter, this implementat
 - [x] Reverse Polish Notation Printer: (1 + 2) \* (4 - 3) --> 1 2 + 4 3 - \*
 - [x] C-style comma operator
 - [x] Ternary conditional (could be buggy)
+- [ ] Error productions for binary operator at the beginning of an expression.
 - [ ] Error messages show location of error:
 
 ```java
