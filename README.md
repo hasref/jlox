@@ -15,6 +15,7 @@ While the book itself provides source code for the interpreter, this implementat
 - [x] C-style comma operator
 - [x] Ternary conditional (could be buggy)
 - [x] String + non-string converts non-string to string and performs string concatenation (e.g. 5 + "hello")
+- [x] Division by zero generates runtime error.
 - [ ] Error productions for binary operator at the beginning of an expression.
 - [ ] Error messages show location of error:
 
