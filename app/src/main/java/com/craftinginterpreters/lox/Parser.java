@@ -49,7 +49,7 @@ class Parser {
             if (!match(COLON)) {
                 throw error(previous(), "Expected colon ':'.");
             }
-            expr = new Expr.Ternary(expr, ifTrue, ternary()); // this code looks so weird
+            expr = new Expr.Ternary(expr, ifTrue, ternary());
         }
         return expr;
     }
